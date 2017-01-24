@@ -168,7 +168,9 @@ Write a function `insertBST` that performs BST insert. You may
 assume your input is a BST.
 
 > insertBST :: Int -> IntTree -> IntTree
-> insertBST = undefined
+> insertBST a Empty = (Node Empty a Empty)
+> insertBST a (Node l x r) = if a > x then (Node l x (insertBST a r))
+>                             else (Node (insertBST a l) x r)
 
 Write a function `deleteBST` that removes a given value from a
 BST. You may assume your input is a BST. Feel free to look up the
@@ -184,8 +186,19 @@ function works correctly, i.e., for all BSTs `t`:
 
 You are, as always, free to introduce any helper functions you might need.
 
+> getMax :: IntTree -> Int
+> getMax (Node l x Empty) = x
+> getMax (Node l x r) = getMax r
+
+
 > deleteBST :: Int -> IntTree -> IntTree
-> deleteBST = undefined
+> deleteBST val Empty = Empty
+> deleteBST val (Node l x r) = if x == val && l == Empty && r == Empty then Empty
+>                              else if x == val && l /= Empty && r /= Empty then (Node (deleteBST (getMax l) l) (getMax l) r)
+>                              else if x == val && l /= Empty then l
+>                              else if x == val && r /= Empty then r
+>                              else if val < x then (Node (deleteBST val l) x r)
+>                              else (Node l x (deleteBST val r))
 
 **Problem 5: maps and folds**
 
@@ -200,32 +213,41 @@ new versions with a prime, `'`.
 Define a function `sumUp'` that sums up a list of numbers.
 
 > sumUp' :: [Int] -> Int
-> sumUp' l = undefined
+> sumUp' [] = 0
+> sumUp' (x:xs) = (foldl (+) x xs)
 
 Define a function `evens'` that selects out the even numbers from a
 list.
 
+> isEven :: Int -> Bool
+> isEven a = if a `mod` 2 == 0 then True
+>            else False
+
 > evens' :: [Int] -> [Int]
-> evens' l = undefined
+> evens' [] = []
+> evens' lst = filter isEven lst
 
 Define a function `incAll'` that increments a list of numbers by
 one.
 
 > incAll' :: [Int] -> [Int]
-> incAll' l = undefined
+> incAll' [] = []
+> incAll' l = map (\x -> x+1) l
 
 Define a function `incBy'` that takes a number and then increments
 a list of numbers *by that number*.
 
 > incBy' :: Int -> [Int] -> [Int]
-> incBy' n l = undefined
+> incBy' _ [] = []
+> incBy' n l = map (\x -> x + n) l
 
 Define a function `rev'` that reverses a list. Don't use
 anything but a folding function (your choice), the list
 constructors, and lambdas/higher-order functions.
 
 > rev' :: [Int] -> [Int]
-> rev' l = undefined
+> rev' [] = []
+> rev' l = foldr (\x y -> y ++ x) [] (map (\a -> [a]) l)
 
 Define two versions of the function `append'` that appends two
 lists.  One, `appendr`, should use `foldr`; the other,
@@ -233,10 +255,15 @@ lists.  One, `appendr`, should use `foldr`; the other,
 constructors, higher-order functions, and `rev'`.
 
 > appendr :: [Int] -> [Int] -> [Int]
-> appendr l1 l2 = undefined
+> appendr [] a = a
+> appendr a [] = a
+> appendr l1 l2 = rev' (foldr (:) (rev' l1) (rev' l2))
 >
 > appendl :: [Int] -> [Int] -> [Int]
-> appendl l1 l2 = undefined
+> appendl [] a = a
+> appendl a [] = a
+> appendl l1 l2 = foldl (++) l1 (map (\x -> [x]) l2)
+
 
 **Problem 6: defining higher-order functions**
 
@@ -248,12 +275,14 @@ the Prelude or list comprehensions. Note that I've written the
 Define `map1` using natural recursion.
 
 > map1 :: (a -> b) -> [a] -> [b]
-> map1 = undefined
+> map1 _ [] = []
+> map1 f (x:xs) = (f x):(map1 f xs)
 
 Define `map2` using a folding function.
 
 > map2 :: (a -> b) -> [a] -> [b]
-> map2 f l = undefined
+> map2 _ [] = []
+> map2 f l = foldr (:) [] (map f l)
 
 Define `filter1` using natural recursion.
 

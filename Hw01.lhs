@@ -33,6 +33,7 @@ The following imports are needed for Problem 9.
 >
 > import qualified Data.Set as Set
 > import Data.Set (Set)
+> import Data.Maybe hiding (mapMaybe)
 
 **Problem 1: natural recursion**
 
@@ -287,12 +288,15 @@ Define `map2` using a folding function.
 Define `filter1` using natural recursion.
 
 > filter1 :: (a -> Bool) -> [a] -> [a]
-> filter1 = undefined
+> filter1 _ [] = []
+> filter1 f (x:xs) = if f x
+>                     then x:filter f xs
+>                     else filter f xs
 
 Define `filter2` using a folding function.
 
 > filter2 :: (a -> Bool) -> [a] -> [a]
-> filter2 p l = undefined
+> filter2 p l = foldr (\x -> if p x then ([x] ++) else ([] ++)) [] l
 
 **Problem 7: polymorphic datatypes **
 
@@ -318,7 +322,7 @@ higher-order function argument returns `Just x`, but filters out
 results where the function returns `Nothing`.
 
 > mapMaybe :: (a -> Maybe b) -> [a] -> [b]
-> mapMaybe = undefined
+> mapMaybe f l = map (fromJust) (filter (isJust) (map f l))
 
 The pair datatype allows us to aggregate values: values of type
 `(a,b)` will have the form `(x,y)`, where `x` has type `a` and `y` has
@@ -328,7 +332,7 @@ Write a function `swap` that takes a pair of type `(a,b)` and returns
 a pair of type `(b,a)`.
 
 > swap :: (a,b) -> (b,a)
-> swap = undefined
+> swap (x,y) = (y,x)
 
 Write a function `pairUp` that takes two lists and returns a list of
 paired elements. If the lists have different lengths, return a list of
@@ -336,21 +340,25 @@ the shorter length. (This is called `zip` in the prelude. Don't define
 this function using `zip`!)
 
 > pairUp :: [a] -> [b] -> [(a,b)]
-> pairUp = undefined
+> pairUp [] _ = []
+> pairUp _ [] = []
+> pairUp (x:xs) (y:ys) = (x,y):(pairUp xs ys)
 
 Write a function `splitUp` that takes a list of pairs and returns a
 pair of lists. (This is called `unzip` in the prelude. Don't define
 this function using `unzip`!)
 
 > splitUp :: [(a,b)] -> ([a],[b])
-> splitUp = undefined
+> splitUp [] = ([],[])
+> splitUp ((a,b):xs) = (a:(fst (splitUp xs)), b:(snd (splitUp xs)))
 
 Write a function `sumAndLength` that simultaneously sums a list and
 computes its length. You can define it using natural recursion or as a
 fold, but---traverse the list only once!
 
 > sumAndLength :: [Int] -> (Int,Int)
-> sumAndLength l = undefined
+> sumAndLength [] = (0,0)
+> sumAndLength (x:xs) = ((x+(fst (sumAndLength xs))), (1 + (snd (sumAndLength xs))))
 
 **Problem 8: defining polymorphic datatypes**
 
@@ -413,27 +421,50 @@ to give you credit for *any* of this problem.
 
 > data EitherList a b =
 >     Nil
->   | ConsLeft {- fill in -}
->   | ConsRight {- fill in -}
+>   | ConsLeft a (EitherList a b)
+>   | ConsRight b (EitherList a b)
 >   deriving (Eq, Show)
 >
+
+> isLeft' :: Either a b -> Bool
+> isLeft' (Right _) = False
+> isLeft' (Left _) = True
+
+> getLeft :: Either a b -> a
+> getLeft (Left x) = x
+
+> getRight :: Either a b -> b
+> getRight (Right x) = x
+
 > toEither :: [Either a b] -> EitherList a b
-> toEither = undefined
+> toEither [] = Nil
+> toEither (x:xs) = if (isLeft' x) then (ConsLeft (getLeft x) (toEither xs))
+>                   else (ConsRight (getRight x) (toEither xs))
 >
 > fromEither :: EitherList a b -> [Either a b]
-> fromEither = undefined
+> fromEither Nil = []
+> fromEither (ConsLeft x xs) = (Left x):(fromEither xs)
+> fromEither (ConsRight x xs) = (Right x):(fromEither xs)
 >
 > mapLeft :: (a -> c) -> EitherList a b -> EitherList c b
-> mapLeft = undefined
+> mapLeft _ Nil = Nil
+> mapLeft f (ConsLeft x xs) = ConsLeft (f x) (mapLeft f xs)
+> mapLeft f (ConsRight x xs) = ConsRight x (mapLeft f xs)
 >
 > mapRight :: (b -> c) -> EitherList a b -> EitherList a c
-> mapRight = undefined
+> mapRight _ Nil = Nil
+> mapRight f (ConsRight x xs) = ConsRight (f x) (mapRight f xs)
+> mapRight f (ConsLeft x xs) = ConsLeft x (mapRight f xs)
 >
 > foldrEither :: (a -> c -> c) -> (b -> c -> c) -> c -> EitherList a b -> c
-> foldrEither = undefined
+> foldrEither _ _ y Nil = y
+> foldrEither fl fr y (ConsLeft x xs) = (fl x (foldrEither fl fr y xs))
+> foldrEither fl fr y (ConsRight x xs) = (fr x (foldrEither fl fr y xs))
 >
 > foldlEither :: (c -> a -> c) -> (c -> b -> c) -> c -> EitherList a b -> c
-> foldlEither = undefined
+> foldlEither _ _ y Nil = y
+> foldlEither fl fr y (ConsLeft x xs) = foldlEither fl fr (fl y x) xs
+> foldlEither fl fr y (ConsRight x xs) = foldlEither fl fr (fr y x) xs
 
 **Problem 9: maps and sets**
 

@@ -531,8 +531,20 @@ bidirectional. Feel free to use any function in `Data.Map`,
 `Data.Set`, or the Prelude, and write as many helper functions as you
 need.
 
+> checkBiDir :: Set Node -> Node -> Graph -> Bool
+> checkBiDir s _ _ | Set.null s = True
+> checkBiDir s val m = if (Map.member (Set.elemAt 0 s) m) && (Set.member val (m ! (Set.elemAt 0 s))) then
+>                          checkBiDir (Set.delete (Set.elemAt 0 s) s) val m
+>                      else
+>                          False
+
+> isBidiHelp :: Graph -> [Node] -> Bool
+> isBidiHelp m [] = True
+> isBidiHelp m (x:xs) = if (checkBiDir (m ! x) x m) then isBidiHelp m xs
+>                       else False
+
 > isBidi :: Graph -> Bool
-> isBidi = undefined
+> isBidi m = isBidiHelp m (Map.keys m)
 
 Write a function `bidify` that takes an arbitrary graph and makes it
 bidirectional by adding edges, i.e., if the node `a` points to `b` but

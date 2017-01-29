@@ -518,6 +518,12 @@ a -       - d
 >                    (c, Set.fromList [a,d]),
 >                    (d, Set.fromList [b,c])]
 
+> g2 = Map.fromList [(a, Set.fromList [b]),
+>                    (b, Set.fromList [c]),
+>                    (c, Set.fromList [d]),
+>                    (d, Set.fromList [a]),
+>                    (e, Set.fromList [])]
+
 Note that we've been careful to make sure the links are bidirectional:
 if the `b` is in the value mapped by `a`, then `a` is in the value
 mapped by `b`.
@@ -551,7 +557,19 @@ bidirectional by adding edges, i.e., if the node `a` points to `b` but
 not vice versa in a graph `g`, then `a` points to `b` *and* `b` points
 to `a` in the graph `bidify g`.
 
+> addEdges :: Set Node -> Node -> Graph -> Graph
+> addEdges s _ g | Set.null s = g
+> addEdges s val g = if (Map.member (Set.elemAt 0 s) g) && (Set.member val (g ! (Set.elemAt 0 s))) then
+>                               addEdges (Set.delete (Set.elemAt 0 s) s) val g
+>                           else
+>                               addEdges (Set.delete (Set.elemAt 0 s) s) val 
+>                                (Map.insert (Set.elemAt 0 s) (Set.insert val (g ! (Set.elemAt 0 s))) g)
+
+> bidifyHelp :: Graph -> [Node] -> Graph
+> bidifyHelp g [] = g
+> bidifyHelp g k = bidifyHelp (addEdges (g ! (k !! 0)) (k !! 0) g) (tail k) 
+
 > bidify :: Graph -> Graph
-> bidify = undefined
+> bidify g = bidifyHelp g (Map.keys g)
 
 Be sure to test your code!

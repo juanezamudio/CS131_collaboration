@@ -1,6 +1,8 @@
 
 Homework 1.0: Haskell warmup
 Due 2017-01-29
+Sam Gearou and Anant Jaitha
+CS 131, Programming Languages
 
 > {-# OPTIONS_GHC -Wall -fno-warn-unused-imports #-}
 
@@ -52,21 +54,21 @@ from a list. For example, `evens [1,2,3,4,5]` should yield
 
 > evens :: [Int] -> [Int]
 > evens []     = []
-> evens (x:xs) = if (even x) then x:evens (xs)
->                 else evens (xs)
+> evens (x:xs) = if (even x) then x: evens (xs)
+>                else evens (xs)
 
 Write a function called `incAll` that increments a list of numbers
 by one. You'll have to fill in the arguments and write the cases yourself.
 
 > incAll :: [Int] -> [Int]
-> incAll [] = []
+> incAll []     = []
 > incAll (x:xs) = (x+1):incAll (xs)
 
 Now write a function called `incBy` that takes a number and
 increments a list of numbers *by that number*.
 
 > incBy :: Int -> [Int] -> [Int]
-> incBy _ [] = []
+> incBy _ []     = []
 > incBy i (x:xs) = (x+i):(incBy i xs)
 
 Write a function `append` that takes two lists and appends them.  For
@@ -77,7 +79,7 @@ version!)
 > append :: [Int] -> [Int] -> [Int]
 > append a [] = a
 > append [] b = b
-> append z y = append (init z) ((head (reverse z)):y)
+> append z y  = append (init z) ((head (reverse z)):y)
 
 **Problem 2: data types**
 
@@ -90,14 +92,14 @@ Write a function `isLeaf` that determines whether a given node is
 a leaf, i.e., both its children are `Empty`.
 
 > isLeaf :: IntTree -> Bool
-> isLeaf Empty = False
+> isLeaf Empty        = False
 > isLeaf (Node l x r) = if (l == Empty) && (r == Empty) then True else False
 
 Write a function `sumTree` that sums up all of the values in an
 `IntTree`.
 
 > sumTree :: IntTree -> Int
-> sumTree Empty = 0
+> sumTree Empty        = 0
 > sumTree (Node l x r) = x + (sumTree l) + (sumTree r)
 
 Write a function `fringe` that yields the fringe of the tree from
@@ -107,7 +109,7 @@ reading left to right.
 For example, the fringe of `Node (Node Empty 1 (Node Empty 2 Empty)) 5 (Node (Node Empty 7 Empty) 10 Empty)` is `[2,7]`.
 
 > fringe :: IntTree -> [Int]
-> fringe Empty = []
+> fringe Empty        = []
 > fringe (Node l x r) = if isLeaf (Node l x r) then [x]
 >                       else (fringe l) ++ (fringe r)
 
@@ -118,12 +120,13 @@ and produces one in sorted order. Use the [insertion sort
 algorithm](https://en.wikipedia.org/wiki/Insertion_sort). You might
 want to write a helper function.
 
-> insert [] x = [x]
+> insert :: Ord t => [t] -> t -> [t]
+> insert [] x     = [x]
 > insert (x:xs) y = if (x > y) then y:(x:xs)
 >                   else x:(insert xs y)
 
 > insertionSort :: [Int] -> [Int]
-> insertionSort [] = []
+> insertionSort []     = []
 > insertionSort (x:xs) = insert (insertionSort xs) x
 
 **Problem 4: binary search trees **
@@ -152,26 +155,28 @@ holds a value `x`. We'll look at this more deeply in the next
 assignment, when we talk about datatypes.
 
 > maybeBounded :: Maybe Int -> Maybe Int -> Int -> Bool
-> maybeBounded Nothing Nothing x = True
-> maybeBounded Nothing (Just upper) x = x < upper
-> maybeBounded (Just lower) Nothing x = lower < x
+> maybeBounded Nothing Nothing x           = True
+> maybeBounded Nothing (Just upper) x      = x < upper
+> maybeBounded (Just lower) Nothing x      = lower < x
 > maybeBounded (Just lower) (Just upper) x = lower < x && x < upper
 
+> isBSTHelper :: IntTree -> Maybe Int -> Maybe Int -> Bool
 > isBSTHelper Empty _ _                = True
-> isBSTHelper (Node l x r) lower upper = if (maybeBounded lower upper x) && (isBSTHelper l lower (Just x)) && (isBSTHelper r (Just x) upper) then True
+> isBSTHelper (Node l x r) lower upper = if (maybeBounded lower upper x) && (isBSTHelper l lower (Just x)) 
+>                                             && (isBSTHelper r (Just x) upper) then True
 >                                        else False
 
 > isBST :: IntTree -> Bool
 > isBST Empty = True
-> isBST a = isBSTHelper a Nothing Nothing
+> isBST a     = isBSTHelper a Nothing Nothing
 
 Write a function `insertBST` that performs BST insert. You may
 assume your input is a BST.
 
 > insertBST :: Int -> IntTree -> IntTree
-> insertBST a Empty = (Node Empty a Empty)
+> insertBST a Empty        = (Node Empty a Empty)
 > insertBST a (Node l x r) = if a > x then (Node l x (insertBST a r))
->                             else (Node (insertBST a l) x r)
+>                            else (Node (insertBST a l) x r)
 
 Write a function `deleteBST` that removes a given value from a
 BST. You may assume your input is a BST. Feel free to look up the
@@ -189,13 +194,14 @@ You are, as always, free to introduce any helper functions you might need.
 
 > getMax :: IntTree -> Int
 > getMax (Node l x Empty) = x
-> getMax (Node l x r) = getMax r
+> getMax (Node l x r)     = getMax r
 
 
 > deleteBST :: Int -> IntTree -> IntTree
 > deleteBST val Empty = Empty
 > deleteBST val (Node l x r) = if x == val && l == Empty && r == Empty then Empty
->                              else if x == val && l /= Empty && r /= Empty then (Node (deleteBST (getMax l) l) (getMax l) r)
+>                              else if x == val && l /= Empty && r /= Empty then (Node (deleteBST (getMax l) l) 
+>                                      (getMax l) r)
 >                              else if x == val && l /= Empty then l
 >                              else if x == val && r /= Empty then r
 >                              else if val < x then (Node (deleteBST val l) x r)
@@ -225,7 +231,7 @@ list.
 >            else False
 
 > evens' :: [Int] -> [Int]
-> evens' [] = []
+> evens' []  = []
 > evens' lst = filter isEven lst
 
 Define a function `incAll'` that increments a list of numbers by
@@ -233,14 +239,14 @@ one.
 
 > incAll' :: [Int] -> [Int]
 > incAll' [] = []
-> incAll' l = map (\x -> x+1) l
+> incAll' l  = map (\x -> x+1) l
 
 Define a function `incBy'` that takes a number and then increments
 a list of numbers *by that number*.
 
 > incBy' :: Int -> [Int] -> [Int]
 > incBy' _ [] = []
-> incBy' n l = map (\x -> x + n) l
+> incBy' n l  = map (\x -> x + n) l
 
 Define a function `rev'` that reverses a list. Don't use
 anything but a folding function (your choice), the list
@@ -248,7 +254,7 @@ constructors, and lambdas/higher-order functions.
 
 > rev' :: [Int] -> [Int]
 > rev' [] = []
-> rev' l = foldr (\x y -> y ++ x) [] (map (\a -> [a]) l)
+> rev' l  = foldr (\x y -> y ++ x) [] (map (\a -> [a]) l)
 
 Define two versions of the function `append'` that appends two
 lists.  One, `appendr`, should use `foldr`; the other,
@@ -256,13 +262,13 @@ lists.  One, `appendr`, should use `foldr`; the other,
 constructors, higher-order functions, and `rev'`.
 
 > appendr :: [Int] -> [Int] -> [Int]
-> appendr [] a = a
-> appendr a [] = a
+> appendr [] a  = a
+> appendr a []  = a
 > appendr l1 l2 = rev' (foldr (:) (rev' l1) (rev' l2))
 >
 > appendl :: [Int] -> [Int] -> [Int]
-> appendl [] a = a
-> appendl a [] = a
+> appendl [] a  = a
+> appendl a []  = a
 > appendl l1 l2 = foldl (++) l1 (map (\x -> [x]) l2)
 
 
@@ -276,19 +282,19 @@ the Prelude or list comprehensions. Note that I've written the
 Define `map1` using natural recursion.
 
 > map1 :: (a -> b) -> [a] -> [b]
-> map1 _ [] = []
+> map1 _ []     = []
 > map1 f (x:xs) = (f x):(map1 f xs)
 
 Define `map2` using a folding function.
 
 > map2 :: (a -> b) -> [a] -> [b]
 > map2 _ [] = []
-> map2 f l = foldr (:) [] (map f l)
+> map2 f l  = foldr (:) [] (map f l)
 
 Define `filter1` using natural recursion.
 
 > filter1 :: (a -> Bool) -> [a] -> [a]
-> filter1 _ [] = []
+> filter1 _ []     = []
 > filter1 f (x:xs) = if f x
 >                     then x:filter f xs
 >                     else filter f xs
@@ -340,8 +346,8 @@ the shorter length. (This is called `zip` in the prelude. Don't define
 this function using `zip`!)
 
 > pairUp :: [a] -> [b] -> [(a,b)]
-> pairUp [] _ = []
-> pairUp _ [] = []
+> pairUp [] _          = []
+> pairUp _ []          = []
 > pairUp (x:xs) (y:ys) = (x,y):(pairUp xs ys)
 
 Write a function `splitUp` that takes a list of pairs and returns a
@@ -349,7 +355,7 @@ pair of lists. (This is called `unzip` in the prelude. Don't define
 this function using `unzip`!)
 
 > splitUp :: [(a,b)] -> ([a],[b])
-> splitUp [] = ([],[])
+> splitUp []         = ([],[])
 > splitUp ((a,b):xs) = (a:(fst (splitUp xs)), b:(snd (splitUp xs)))
 
 Write a function `sumAndLength` that simultaneously sums a list and
@@ -357,7 +363,7 @@ computes its length. You can define it using natural recursion or as a
 fold, but---traverse the list only once!
 
 > sumAndLength :: [Int] -> (Int,Int)
-> sumAndLength [] = (0,0)
+> sumAndLength []     = (0,0)
 > sumAndLength (x:xs) = ((x+(fst (sumAndLength xs))), (1 + (snd (sumAndLength xs))))
 
 **Problem 8: defining polymorphic datatypes**
@@ -428,7 +434,7 @@ to give you credit for *any* of this problem.
 
 > isLeft' :: Either a b -> Bool
 > isLeft' (Right _) = False
-> isLeft' (Left _) = True
+> isLeft' (Left _)  = True
 
 > getLeft :: Either a b -> a
 > getLeft (Left x) = x
@@ -437,33 +443,33 @@ to give you credit for *any* of this problem.
 > getRight (Right x) = x
 
 > toEither :: [Either a b] -> EitherList a b
-> toEither [] = Nil
+> toEither []     = Nil
 > toEither (x:xs) = if (isLeft' x) then (ConsLeft (getLeft x) (toEither xs))
 >                   else (ConsRight (getRight x) (toEither xs))
 >
 > fromEither :: EitherList a b -> [Either a b]
-> fromEither Nil = []
-> fromEither (ConsLeft x xs) = (Left x):(fromEither xs)
+> fromEither Nil              = []
+> fromEither (ConsLeft x xs)  = (Left x):(fromEither xs)
 > fromEither (ConsRight x xs) = (Right x):(fromEither xs)
 >
 > mapLeft :: (a -> c) -> EitherList a b -> EitherList c b
 > mapLeft _ Nil = Nil
-> mapLeft f (ConsLeft x xs) = ConsLeft (f x) (mapLeft f xs)
+> mapLeft f (ConsLeft x xs)  = ConsLeft (f x) (mapLeft f xs)
 > mapLeft f (ConsRight x xs) = ConsRight x (mapLeft f xs)
 >
 > mapRight :: (b -> c) -> EitherList a b -> EitherList a c
-> mapRight _ Nil = Nil
+> mapRight _ Nil              = Nil
 > mapRight f (ConsRight x xs) = ConsRight (f x) (mapRight f xs)
-> mapRight f (ConsLeft x xs) = ConsLeft x (mapRight f xs)
+> mapRight f (ConsLeft x xs)  = ConsLeft x (mapRight f xs)
 >
 > foldrEither :: (a -> c -> c) -> (b -> c -> c) -> c -> EitherList a b -> c
-> foldrEither _ _ y Nil = y
-> foldrEither fl fr y (ConsLeft x xs) = (fl x (foldrEither fl fr y xs))
+> foldrEither _ _ y Nil                = y
+> foldrEither fl fr y (ConsLeft x xs)  = (fl x (foldrEither fl fr y xs))
 > foldrEither fl fr y (ConsRight x xs) = (fr x (foldrEither fl fr y xs))
 >
 > foldlEither :: (c -> a -> c) -> (c -> b -> c) -> c -> EitherList a b -> c
-> foldlEither _ _ y Nil = y
-> foldlEither fl fr y (ConsLeft x xs) = foldlEither fl fr (fl y x) xs
+> foldlEither _ _ y Nil                = y
+> foldlEither fl fr y (ConsLeft x xs)  = foldlEither fl fr (fl y x) xs
 > foldlEither fl fr y (ConsRight x xs) = foldlEither fl fr (fr y x) xs
 
 **Problem 9: maps and sets**
@@ -539,13 +545,13 @@ need.
 
 > checkBiDir :: Set Node -> Node -> Graph -> Bool
 > checkBiDir s _ _ | Set.null s = True
-> checkBiDir s val m = if (Map.member (Set.elemAt 0 s) m) && (Set.member val (m ! (Set.elemAt 0 s))) then
->                          checkBiDir (Set.delete (Set.elemAt 0 s) s) val m
->                      else
->                          False
+> checkBiDir s val m            = if (Map.member (Set.elemAt 0 s) m) && (Set.member val (m ! (Set.elemAt 0 s))) then
+>                                    checkBiDir (Set.delete (Set.elemAt 0 s) s) val m
+>                                 else
+>                                    False
 
 > isBidiHelp :: Graph -> [Node] -> Bool
-> isBidiHelp m [] = True
+> isBidiHelp m []     = True
 > isBidiHelp m (x:xs) = if (checkBiDir (m ! x) x m) then isBidiHelp m xs
 >                       else False
 
@@ -559,15 +565,15 @@ to `a` in the graph `bidify g`.
 
 > addEdges :: Set Node -> Node -> Graph -> Graph
 > addEdges s _ g | Set.null s = g
-> addEdges s val g = if (Map.member (Set.elemAt 0 s) g) && (Set.member val (g ! (Set.elemAt 0 s))) then
->                               addEdges (Set.delete (Set.elemAt 0 s) s) val g
->                           else
->                               addEdges (Set.delete (Set.elemAt 0 s) s) val 
->                                (Map.insert (Set.elemAt 0 s) (Set.insert val (g ! (Set.elemAt 0 s))) g)
+> addEdges s val g            = if (Map.member (Set.elemAt 0 s) g) && (Set.member val (g ! (Set.elemAt 0 s))) then
+>                                  addEdges (Set.delete (Set.elemAt 0 s) s) val g
+>                               else
+>                                  addEdges (Set.delete (Set.elemAt 0 s) s) val 
+>                                  (Map.insert (Set.elemAt 0 s) (Set.insert val (g ! (Set.elemAt 0 s))) g)
 
 > bidifyHelp :: Graph -> [Node] -> Graph
 > bidifyHelp g [] = g
-> bidifyHelp g k = bidifyHelp (addEdges (g ! (k !! 0)) (k !! 0) g) (tail k) 
+> bidifyHelp g k  = bidifyHelp (addEdges (g ! (k !! 0)) (k !! 0) g) (tail k) 
 
 > bidify :: Graph -> Graph
 > bidify g = bidifyHelp g (Map.keys g)

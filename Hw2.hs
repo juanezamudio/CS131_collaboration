@@ -69,7 +69,7 @@ class Setlike f where
   suc :: Ord a => f a -> a
 
   deleteH :: Ord a => f a -> f a
- 
+
   delete :: Ord a => a -> f a -> f a
   delete x s = fold (\y s' -> if x == y then s' else insert y s') emp s
 
@@ -91,25 +91,25 @@ class Setlike f where
 
 
 instance Setlike ([]) where
- emp = [] 
+ emp = []
 
- singleton a = [a] 
+ singleton a = [a]
 
  union [] [] = []
  union (x:xs) [] = (x:xs)
  union [] (y:ys) = (y:ys)
  union (x:xs) (y:ys) = if elem y (x:xs) then union (x:xs) ys
 						  else union ((x:xs) ++ [y]) ys
- fold f a b = foldr f a b					  
+ fold f a b = foldr f a b
  getElem _ [] = Nothing
  getElem a (x:xs) = if (a == x) then Just x
 		               else getElem a xs
-	
+
 
 evensUpToTen :: [Int]
 evensUpToTen = foldr insert emp [0,2,4,6,8]
 
- 
+
 data BST a = Empty | Node (BST a) a (BST a)
 
 instance Setlike BST where
@@ -118,7 +118,7 @@ instance Setlike BST where
 	singleton a = Node (Empty) a (Empty)
 
 	insert a Empty = Node Empty a Empty
-	insert a (Node l x r) 
+	insert a (Node l x r)
 		| x==a  = Node l x r
 		| x < a = Node l x (insert a r)
 		| x > a = Node (insert a l) x r
@@ -136,7 +136,7 @@ instance Setlike BST where
 	deleteH (Node Empty _ r)     = r
 	deleteH (Node l _ Empty)     = l
 	deleteH (Node l _ r) = (Node l y r)
-		where 
+		where
 			y = suc r
 
 	getElem _ Empty = Nothing
@@ -234,7 +234,7 @@ toAssocListH (KV (k,v)) = (k,v)
 data RoseTree a = Leaf a | Branch [RoseTree a] deriving (Eq, Show)
 
 instance Functor RoseTree where
-  fmap f (Leaf a)        = Leaf (f a)           
+  fmap f (Leaf a)        = Leaf (f a)
   fmap f (Branch (ls)) = Branch (foldl (\x y -> x ++ [(fmap f y)]) [] (ls))
 
 instance Functor BST where
